@@ -11,24 +11,22 @@ app.use(session({secret:"fingerpint",resave: true, saveUninitialized: true}))
 app.use(express.json());
 
 app.use("/user", (req,res,next)=>{
-// Middleware which tells that the user is authenticated or not
-   
-   if(req.session.authorization) {
-       let token = req.session.authorization['accessToken']; // Access Token
-       
-       jwt.verify(token, "access",(err,user)=>{
-           if(!err){
-               req.user = user;
-               next();
-           }
-           else{
-               return res.status(403).json({message: "User not authenticated"})
-           }
-        });
-    } else {
-        return res.status(403).json({message: "User not logged in"})
-    }
-});
+    // Middleware which tells that the user is authenticated or not
+       if(req.session.authorization) {
+           let token = req.session.authorization['accessToken']; // Access Token
+           jwt.verify(token, "access",(err,user)=>{
+               if(!err){
+                   req.user = user;
+                   next();
+               }
+               else{
+                   return res.status(403).json({message: "User not authenticated"})
+               }
+            });
+        } else {
+            return res.status(403).json({message: "User not logged in"})
+        }
+    });
 
 app.use("/user", routes);
 
@@ -40,7 +38,6 @@ app.post("/login", (req,res) => {
     let accessToken = jwt.sign({
         data: user
       }, 'access', { expiresIn: 60 * 60 });
-
       req.session.authorization = {
         accessToken
     }
